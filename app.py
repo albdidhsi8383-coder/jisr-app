@@ -1,7 +1,30 @@
+import subprocess
+import sys
+
+# تثبيت المكتبات المطلوبة تلقائياً إذا لم تكن موجودة
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+try:
+    import cv2
+except ImportError:
+    install("opencv-python-headless")
+    import cv2
+
+try:
+    import mediapipe as mp
+except ImportError:
+    install("mediapipe")
+    import mediapipe as mp
+
+try:
+    import streamlit_webrtc
+except ImportError:
+    install("streamlit-webrtc")
+    import streamlit_webrtc
+
 import streamlit as st
-import cv2
 import numpy as np
-import mediapipe as mp
 import os
 import pickle
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
@@ -13,7 +36,7 @@ st.markdown("<h1 style='text-align: center; color: #4A90E2;'>🌉 تطبيق ج�
 st.markdown("<h4 style='text-align: center; color: gray;'>المنصة الذكية للترجمة الفورية للغة الإشارة</h4>", unsafe_allow_html=True)
 st.write("---")
 
-# مسار نموذج الذكاء الاصطناعي (تأكدي أن اسم الملف مطابق لما رفعتيه على غيت هاب)
+# مسار نموذج الذكاء الاصطناعي
 MODEL_PATH = 'sign_language_model.pkl'
 
 @st.cache_resource
@@ -28,9 +51,9 @@ model_data = load_model()
 if model_data:
     st.success("✅ تم تحميل نموذج الذكاء الاصطناعي بنجاح.")
 else:
-    st.warning("⚠️ تنبيه: لم يتم العثور على ملف النموذج المدرب، تأكدي من رفعه بجانب الكود في غيت هاب.")
+    st.warning("⚠️ تنبيه: لم يتم العثور على ملف النموذج المدرب `sign_language_model.pkl`، تأكدي من رفعه بجانب الكود.")
 
-# إعدادات ميديابايپ لتتبع اليد (نفس إعدادات مشروعك المحلي)
+# إعدادات ميديابايپ لتتبع اليد
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
@@ -45,12 +68,8 @@ class SignLanguageProcessor(VideoProcessorBase):
 
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
-        
-        # انعكاس الصورة لتعمل كمرآة
         img = cv2.flip(img, 1)
-        h, w, c = img.shape
         
-        # تحويل الألوان لمعالجة Mediapipe
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = self.hands.process(img_rgb)
         
@@ -58,21 +77,15 @@ class SignLanguageProcessor(VideoProcessorBase):
 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                # رسم خطوط تتبع اليد على الفيديو الحي
                 mp_drawing.draw_landmarks(img, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-                
-                # هنا يمكنك استخراج الـ landmarks تماماً كما في كودك المحلي (integrated_app.py)
-                # وإدخالها للنموذج للتنبؤ بالكلمة
                 if model_data and 'labels' in model_data:
-                    detected_text = model_data['labels'][0]  # استبدليها بالتنبؤ الفعلي من نموذجك
+                    detected_text = model_data['labels'][0]
 
-        # كتابة الكلمة المترجمة على الشاشة الحية للفيديو
         cv2.putText(img, f"Translation: {detected_text}", (30, 50),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
         return frame.from_ndarray(img, format="bgr24")
 
-# تشغيل البث الحي وتتبع اليد عبر المتصفح والهاتف
 st.subheader("📹 بث مباشر لتتبع اليد وترجمة الإشارة:")
 webrtc_streamer(
     key="jisr-sign-language",
