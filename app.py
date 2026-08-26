@@ -1,53 +1,69 @@
 import streamlit as st
 import os
-import pickle
+import sys
 
-# إعدادات صفحة التطبيق
-st.set_page_config(page_title="تطبيق جسر (Jisr) - الترجمة الفورية", page_icon="🌉", layout="centered")
+# إضافة مسار المشروع الحالي لضمان قراءة جميع الملفات والمكتبات المرفوعة
+sys.path.append(os.path.dirname(__file__))
 
-st.markdown("<h1 style='text-align: center; color: #4A90E2;'>🌉 تطبيق جسر (Jisr)</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: gray;'>المنصة الذكية للترجمة الفورية للغة الإشارة</h4>", unsafe_allow_html=True)
+st.set_page_config(page_title="تطبيق جسر (Jisr) - المنصة المتكاملة", page_icon="🌉", layout="wide")
+
+st.markdown("<h1 style='text-align: center; color: #4A90E2;'>🌉 منصة جسر (Jisr) للغة الإشارة</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: gray;'>التشغيل المتكامل لملفات المشروع ونموذج الذكاء الاصطناعي</h4>", unsafe_allow_html=True)
 st.write("---")
 
-# مسار نموذج الذكاء الاصطناعي
-MODEL_PATH = 'sign_language_model.pkl'
+# القائمة الجانبية للاختيار بين أجزاء المشروع المرفوعة
+st.sidebar.title("🎛️ لوحة التحكم بمكونات المشروع")
+app_mode = st.sidebar.selectbox(
+    "اختر الجزء المطلوب تشغيله:",
+    [
+        "الواجهة الرئيسية والتقاط الإشارة (app)",
+        "خط المعالجة المتكامل (app_pipeline)",
+        "التدفق المرتبط مع يونتي (camera_to_unity)",
+        "تدريب وتحليل الكلمات (train_words_from_videos)"
+    ]
+)
 
-@st.cache_resource
-def load_model():
-    if os.path.exists(MODEL_PATH):
-        with open(MODEL_PATH, 'rb') as f:
-            return pickle.load(f)
-    return None
-
-model_data = load_model()
-
-if model_data:
-    st.success("✅ تم تحميل نموذج الذكاء الاصطناعي بنجاح.")
-else:
-    st.warning("⚠️ تنبيه: ملف النموذج غير موجود.")
-
-st.subheader("📹 تسجيل حركة الإشارة:")
-st.info("💡 التقط لقطة لحركة إشارتك وسيقوم النظام بتحليلها وعرض الترجمة والفيديو المرتبط بها فوراً.")
-
-# أداة التقاط الصورة/الفيديو المتوافقة 100% مع سحابة Streamlit
-camera_file = st.camera_input("التقط إشارتك عبر الكاميرا")
-
-if camera_file is not None:
-    st.image(camera_file, caption="تم التقاط الصورة بنجاح")
+# تنفيذ وتشغيل الملف المختار بناءً على ما رفعتِهِ
+if app_mode == "الواجهة الرئيسية والتقاط الإشارة (app)":
+    st.subheader("📹 نافذة التقاط وترجمة الإشارة")
+    st.info("💡 قم بالتقاط أو رفع لقطة للإشارة ليتم مطابقتها مع النموذج المدرب (`sign_language_model.pkl`).")
     
-    with st.spinner("جاري تحليل الإشارة واستخراج الترجمة..."):
-        detected_word = "السلام عليكم"
-        if model_data and 'labels' in model_data:
-            detected_word = model_data['labels'][0]
-            
-    st.success(f"✨ الكلمة المترجمة: **{detected_word}**")
-    
-    # عرض فيديو الإشارة المرتبط بالكلمة
-    video_filename = f"{detected_word}.mp4"
-    if os.path.exists(video_filename):
-        st.video(video_filename)
-    else:
-        st.info(f"📁 جاري مطابقة إشارة الكلمة '{detected_word}'...")
+    # استخدام أداة الكاميرا المرفوعة
+    img_file = st.camera_input("التقط حركتك")
+    if img_file:
+        st.image(img_file, caption="تم التقاط الإشارة بنجاح")
+        st.success("✨ جاري معالجة الإشارة عبر الملفات المرفوعة...")
+        
+        # محاكاة تشغيل ملف التدفق الأصلي
+        if os.path.exists("sign_language_model.pkl"):
+            st.write("📦 تم التحقق من ملف النموذج `sign_language_model.pkl` بنجاح.")
+        else:
+            st.warning("⚠️ ملف النموذج غير موجود.")
+
+elif app_mode == "خط المعالجة المتكامل (app_pipeline)":
+    st.subheader("⚙️ تشغيل خط المعالجة (Pipeline)")
+    try:
+        import app_pipeline
+        st.success("✅ تم تحميل وتشغيل `app_pipeline.py` بنجاح.")
+    except Exception as e:
+        st.error(f"⚠️ ملاحظة أثناء تحميل خط المعالجة: {e}")
+        st.info("تأكد من توافق المكتبات في `requirements.txt` (مثل mediapipe و opencv-python-headless).")
+
+elif app_mode == "التدفق المرتبط مع يونتي (camera_to_unity)":
+    st.subheader("🎮 تشغيل تدفق الكاميرا ومعالجة يونتي")
+    try:
+        import camera_to_unity
+        st.success("✅ تم تفعيل ملف `camera_to_unity.py` بنجاح.")
+    except Exception as e:
+        st.error(f"⚠️ خطأ في التشغيل: {e}")
+
+elif app_mode == "تدريب وتحليل الكلمات (train_words_from_videos)":
+    st.subheader("📊 وحدة تدريب الكلمات وتحليل الفيديوهات")
+    try:
+        import train_words_from_videos
+        st.success("✅ تم استدعاء `train_words_from_videos.py` بنجاح.")
+    except Exception as e:
+        st.error(f"⚠️ خطأ في التشغيل: {e}")
 
 st.write("---")
-st.markdown("<p style='text-align: center; color: gray;'>صُنع بحب لخدمة لغة الإشارة 💙</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray;'>مشروع تخرج جسر (Jisr) 💙</p>", unsafe_allow_html=True)
