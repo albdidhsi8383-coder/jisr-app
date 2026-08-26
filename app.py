@@ -1,30 +1,7 @@
-import subprocess
-import sys
-
-# تثبيت المكتبات المطلوبة تلقائياً إذا لم تكن موجودة
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-try:
-    import cv2
-except ImportError:
-    install("opencv-python-headless")
-    import cv2
-
-try:
-    import mediapipe as mp
-except ImportError:
-    install("mediapipe")
-    import mediapipe as mp
-
-try:
-    import streamlit_webrtc
-except ImportError:
-    install("streamlit-webrtc")
-    import streamlit_webrtc
-
 import streamlit as st
+import cv2
 import numpy as np
+import mediapipe as mp
 import os
 import pickle
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
