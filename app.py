@@ -30,7 +30,7 @@ else:
 
 # التقاط صورة الإشارة عبر كاميرا الموبايل أو المتصفح
 st.subheader("📷 التقاط حركة الإشارة:")
-camera_image = st.camera_image("التقط صورة لإشارتك عبر الكاميرا")
+camera_image = st.camera_input("التقط صورة لإشارتك عبر الكاميرا")
 
 if camera_image is not None:
     st.image(camera_image, caption="الصورة التقِطت بنجاح", use_column_width=True)
