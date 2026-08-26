@@ -6,14 +6,13 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 st.set_page_config(
-    page_title="منصة جسر الإنسانية - الترجمة الشاملة",
+    page_title="منصة جسر الإنسانية - ترجمة لغة الإشارة",
     page_icon="🌉",
     layout="centered"
 )
 
-# تصميم الواجهة الإنسانية
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>🌉 مشروع جسر الإنساني</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: #4B5563;'>المنصة الذكية لتحويل الصوت إلى إشارات وفيديوهات توضيحية</h4>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: #4B5563;'>المنصة الذكية للربط الصوتي والمرئي مع فيديوهات لغة الإشارة</h4>", unsafe_allow_html=True)
 st.write("---")
 
 # القائمة الجانبية لتنقل الأقسام
@@ -21,29 +20,31 @@ st.sidebar.title("🎛️ لوحة التحكم بالمشروع")
 mode = st.sidebar.radio(
     "اختر وضع الاستخدام:",
     [
-        "🎙️ تسجيل الصوت وتحويله إلى إشارة وفيديو",
+        "🎙️ تسجيل الصوت والبحث في فيديوهات StreamingAssets",
         "📹 التقاط وتحليل لغة الإشارة بالكاميرا",
-        "⚙️ فحص حالة ملفات المشروع"
+        "📁 فحص مجلد الفيديوهات (418 فيديو)"
     ]
 )
 
-if mode == "🎙️ تسجيل الصوت وتحويله إلى إشارة وفيديو":
-    st.subheader("🎙️ التسجيل الصوتي والتحويل الذكي")
-    st.info("💡 قومي بتسجيل الصوت (أو النطق بالجملة)، وسيقوم النظام بتحليله، استخراج الكلمة الإشارية، وعرض الفيديو المرتبط بها مباشرة.")
+# تحديد المسار الفعلي لمجلد الفيديوهات الذي يحتوي على الـ 418 فيديو
+VIDEO_DIR = "StreamingAssets"
+
+if mode == "🎙️ تسجيل الصوت والبحث في فيديوهات StreamingAssets":
+    st.subheader("🎙️ التسجيل الصوتي والتحويل المرئي الفوري")
+    st.info("💡 قومي بتسجيل الصوت أو التحدث، وسيقوم النظام باستخراج الكلمة والبحث عنها مباشرة داخل مجلد فيديوهات الإشارة.")
     
-    # محاكاة خانة تسجيل الصوت المباشر في المتصفح
-    audio_file = st.audio_input("اضغطي هنا لبدء التحدث أو تسجيل الصوت")
+    audio_file = st.audio_input("اضغطي هنا لبدء التسجيل الصوتي")
     
     if audio_file is not None:
         st.audio(audio_file)
         
-        with st.spinner("⏳ جاري تحليل الصوت، تحويله إلى جملة، واستخراج فيديو الإشارة..."):
+        with st.spinner("⏳ جاري تحليل الصوت واستخراج كلمة الإشارة من قاعدة البيانات..."):
             
-            # محاكاة النص المستخرج من الصوت
-            recognized_sentence = "أنا أسوق السيارة"
-            target_word = "سيارة" # الكلمة المستهدفة للإشارة
+            # محاكاة الكلمة المستخرجة من الصوت (كمثال: إحدى الكلمات الموجودة في مجلدك مثل 'يمشي' أو 'ينام' أو 'يقدر')
+            # يمكنك لاحقاً ربط هذه المتغيرات بنتيجة موديل التعرف الصوتي لديك
+            target_word = "يمشي" 
+            recognized_sentence = "الشخص يمشي ببطء"
             
-            # عرض النتائج بطريقة إنسانية واضحة
             st.success("✅ تمت عملية تحليل الصوت والترجمة بنجاح!")
             
             col1, col2 = st.columns(2)
@@ -55,32 +56,45 @@ if mode == "🎙️ تسجيل الصوت وتحويله إلى إشارة وف�
                 st.warning(target_word)
                 
             st.write("---")
-            st.subheader(f"🎬 فيديو لغة الإشارة للكلمة: ({target_word})")
+            st.subheader(f"🎬 فيديو لغة الإشارة الحقيقي للكلمة: ({target_word})")
             
-            # محاكاة تشغيل ملف الفيديو الخاص بالإشارة
-            video_filename = f"{target_word}.mp4"
-            if os.path.exists(video_filename):
-                st.video(video_filename)
+            # بناء مسار البحث عن الفيديو داخل مجلد StreamingAssets
+            video_path = os.path.join(VIDEO_DIR, f"{target_word}.mp4")
+            
+            if os.path.exists(video_path):
+                st.video(video_path)
+                st.success(f"📁 تم جلب وتشغيل فيديو الإشارة الحقيقي بنجاح من مجلد `{VIDEO_DIR}`.")
             else:
-                # عرض فيديو تجريبي أو إرشادي في حال لم يكن الملف مرفوعاً بعد
-                st.info("📽️ (عرض توضيحي لفيديو الإشارة الخاص بالكلمة المرعضة)")
-                st.video("https://www.w3schools.com/html/mov_bbb.mp4")
+                st.error(f"⚠️ عذراً، لم يتم العثور على ملف الفيديو باسم (`{target_word}.mp4`) في مجلد `{VIDEO_DIR}`.")
+                st.info(f"تأكد من أن الكلمة تطابق اسم ملف الفيديو الموجود في المجلد (مثلاً: ينام.mp4، يبكي.mp4، إلخ).")
 
 elif mode == "📹 التقاط وتحليل لغة الإشارة بالكاميرا":
-    st.subheader("📹 نافذة التقاط حركة الإشارة")
-    st.info("💡 التقطي الإشارة بالكاميرا ليتم مطابقتها مع النموذج وترجمتها إلى نص وصوت.")
+    st.subheader("📹 نافذة التقاط حركة الإشارة بالكاميرا")
+    st.info("💡 التقطي الإشارة بالكاميرا ليتم تحليلها وعرض الفيديو المرتبط بها.")
     
     img_file = st.camera_input("التقط حركة اليد")
     if img_file is not None:
         st.image(img_file, caption="تم التقاط الإشارة")
-        st.success("✨ الجملة المترجمة: **أنا أسوق السيارة**")
-        st.write("🔊 [نطق صوتي]: أنا أسوق السيارة")
+        target_word = "يمشي"
+        st.success(f"✨ الكلمة المترجمة: **{target_word}**")
+        
+        video_path = os.path.join(VIDEO_DIR, f"{target_word}.mp4")
+        if os.path.exists(video_path):
+            st.video(video_path)
+        else:
+            st.warning(f"فيديو الكلمة غير متوفر في مسار `{VIDEO_DIR}`.")
 
-elif mode == "⚙️ فحص حالة ملفات المشروع":
-    st.subheader("📊 فحص ملفات الموديل والمعالجة")
-    st.write(f"- ملف النموذج الرئيسي: `{'متوفر ✅' if os.path.exists('sign_language_model.pkl') else 'غير متوفر ⚠️'}`")
-    st.write(f"- خط المعالجة: `{'متوفر ✅' if os.path.exists('app_pipeline.py') else 'غير متوفر ⚠️'}`")
-    st.write(f"- ربط يونتي: `{'متوفر ✅' if os.path.exists('camera_to_unity.py') else 'غير متوفر ⚠️'}`")
+elif mode == "📁 فحص مجلد الفيديوهات (418 فيديو)":
+    st.subheader("📊 فحص قاعدة بيانات الفيديوهات الحالية")
+    if os.path.exists(VIDEO_DIR):
+        video_files = [f for f in os.listdir(VIDEO_DIR) if f.endswith('.mp4')]
+        st.success(f"✅ مجلد `{VIDEO_DIR}` متوفر ويحتوي على **{len(video_files)}** ملف فيديو جاهز للعمل!")
+        
+        # عرض عينة من أسماء الفيديوهات المتاحة في المجلد للتأكد
+        with st.expander("🔍 اضغط هنا لعرض عينة من أسماء الكلمات المتوفرة في المجلد"):
+            st.write(video_files[:30]) # يظهر أول 30 كلمة كمثال
+    else:
+        st.warning(f"⚠️ مجلد `{VIDEO_DIR}` غير موجود في مسار العمل الحالي. تأكد من وضعه بجانب ملف app.py.")
 
 st.write("---")
-st.markdown("<p style='text-align: center; color: gray;'>مشروع جسر الإنساني 💙 - نخدم التواصل بلغة الإشارة</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray;'>مشروع جسر الإنساني 💙 - نخدم التواصل بلغة الإشارة بكل حب</p>", unsafe_allow_html=True)
