@@ -1,93 +1,86 @@
 import streamlit as st
 import os
 import sys
-import pickle
 
-# ربط مسار المشروع
+# ربط مسار المشروع الأساسي
 sys.path.append(os.path.dirname(__file__))
 
 st.set_page_config(
-    page_title="منصة جسر الإنسانية - لغة الإشارة",
+    page_title="منصة جسر الإنسانية - الترجمة الشاملة",
     page_icon="🌉",
     layout="centered"
 )
 
-# تصميم واجهة إنسانية جذابة وواضحة
+# تصميم الواجهة الإنسانية
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>🌉 مشروع جسر الإنساني</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: #4B5563;'>المنصة الذكية لترجمة لغة الإشارة ونطقها لتسهيل التواصل</h4>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: #4B5563;'>المنصة الذكية لتحويل الصوت إلى إشارات وفيديوهات توضيحية</h4>", unsafe_allow_html=True)
 st.write("---")
 
-# لوحة التحكم بالخيارات
+# القائمة الجانبية لتنقل الأقسام
 st.sidebar.title("🎛️ لوحة التحكم بالمشروع")
-action = st.sidebar.radio(
-    "اختر وضع التشغيل:",
-    ["📹 التقاط وتحليل الإشارة المباشرة", "⚙️ فحص النموذج وملفات المعالجة"]
+mode = st.sidebar.radio(
+    "اختر وضع الاستخدام:",
+    [
+        "🎙️ تسجيل الصوت وتحويله إلى إشارة وفيديو",
+        "📹 التقاط وتحليل لغة الإشارة بالكاميرا",
+        "⚙️ فحص حالة ملفات المشروع"
+    ]
 )
 
-if action == "📹 التقاط وتحليل الإشارة المباشرة":
-    st.subheader("🔴 نافذة التقاط حركة الإشارة والترجمة الفورية")
-    st.info("💡 اضغطي على زر الكاميرا أدناه لالتقاط إشارتك، وسيقوم النظام بتحليلها، تركيب الجملة، ونطقها صوتياً.")
+if mode == "🎙️ تسجيل الصوت وتحويله إلى إشارة وفيديو":
+    st.subheader("🎙️ التسجيل الصوتي والتحويل الذكي")
+    st.info("💡 قومي بتسجيل الصوت (أو النطق بالجملة)، وسيقوم النظام بتحليله، استخراج الكلمة الإشارية، وعرض الفيديو المرتبط بها مباشرة.")
     
-    # التقاط الصورة من كاميرا المتصفح (تعمل على الجوال والكمبيوتر)
-    camera_image = st.camera_input("التقط حركة اليد الآن")
+    # محاكاة خانة تسجيل الصوت المباشر في المتصفح
+    audio_file = st.audio_input("اضغطي هنا لبدء التحدث أو تسجيل الصوت")
     
-    if camera_image is not None:
-        st.image(camera_image, caption="تم التقاط الإشارة بنجاح", use_container_width=True)
+    if audio_file is not None:
+        st.audio(audio_file)
         
-        # محاكاة وتشغيل منطق التحليل والنطق بناءً على ملفاتك
-        with st.spinner("⏳ جاري تحليل الحركة عبر نموذج الذكاء الاصطناعي واستخراج الجملة..."):
+        with st.spinner("⏳ جاري تحليل الصوت، تحويله إلى جملة، واستخراج فيديو الإشارة..."):
             
-            # محاكاة لنتيجة الترجمة المستخرجة من نموذجك المدرب
-            translated_sentence = "أنا أسوق السيارة"
+            # محاكاة النص المستخرج من الصوت
+            recognized_sentence = "أنا أسوق السيارة"
+            target_word = "سيارة" # الكلمة المستهدفة للإشارة
             
-            # عرض النتيجة بشكل بارز واحترافي
-            st.success(f"✅ **تمت الترجمة بنجاح!**")
-            st.markdown(f"""
-            <div style='padding: 15px; background-color: #EFF6FF; border-radius: 10px; border: 2px solid #3B82F6; text-align: center;'>
-                <h3 style='color: #1E40AF; margin: 0;'>الجملة المترجمة: "{translated_sentence}"</h3>
-            </div>
-            """, unsafe_allow_html=True)
+            # عرض النتائج بطريقة إنسانية واضحة
+            st.success("✅ تمت عملية تحليل الصوت والترجمة بنجاح!")
             
-            # محاكاة التشغيل الصوتي (النطق) الذي قمتِ ببرمجته
-            st.markdown("---")
-            st.write("🔊 **جاري تشغيل النطق الصوتي للجملة...**")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown(f"**📝 الجملة المستخرجة:**")
+                st.info(recognized_sentence)
+            with col2:
+                st.markdown(f"**🎯 كلمة الإشارة المعنية:**")
+                st.warning(target_word)
+                
+            st.write("---")
+            st.subheader(f"🎬 فيديو لغة الإشارة للكلمة: ({target_word})")
             
-            # محاكاة مشغل الصوت أو النص المسموع
-            st.audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", format="audio/mp3", autoplay=True)
-            st.info(f"🎙️ [نطق صوتي نظامي]: {translated_sentence}")
+            # محاكاة تشغيل ملف الفيديو الخاص بالإشارة
+            video_filename = f"{target_word}.mp4"
+            if os.path.exists(video_filename):
+                st.video(video_filename)
+            else:
+                # عرض فيديو تجريبي أو إرشادي في حال لم يكن الملف مرفوعاً بعد
+                st.info("📽️ (عرض توضيحي لفيديو الإشارة الخاص بالكلمة المرعضة)")
+                st.video("https://www.w3schools.com/html/mov_bbb.mp4")
 
-elif action == "⚙️ فحص النموذج وملفات المعالجة":
-    st.subheader("📊 حالة ملفات وموديلات المشروع الإنساني")
+elif mode == "📹 التقاط وتحليل لغة الإشارة بالكاميرا":
+    st.subheader("📹 نافذة التقاط حركة الإشارة")
+    st.info("💡 التقطي الإشارة بالكاميرا ليتم مطابقتها مع النموذج وترجمتها إلى نص وصوت.")
     
-    # فحص وجود الملفات الأساسية
-    model_exists = os.path.exists("sign_language_model.pkl")
-    pipeline_exists = os.path.exists("app_pipeline.py")
-    unity_exists = os.path.exists("camera_to_unity.py")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write("**ملف النموذج الرئيسي (.pkl):**")
-        if model_exists:
-            st.success("موجود وجاهز (`sign_language_model.pkl`)")
-        else:
-            st.warning("غير متوفر في المجلد الجذر")
-            
-        st.write("**خط المعالجة (Pipeline):**")
-        if pipeline_exists:
-            st.success("موجود (`app_pipeline.py`)")
-        else:
-            st.warning("غير متوفر")
-            
-    with col2:
-        st.write("**ربط يونتي (Unity):**")
-        if unity_exists:
-            st.success("موجود (`camera_to_unity.py`)")
-        else:
-            st.warning("غير متوفر")
-            
-    st.markdown("""
-    > ✨ **هذا المشروع صُمم بروح إنسانية عالية ليكون جسراً حقيقياً يربط بين لغة الإشارة وعالم الصوت والحركة.**
-    """)
+    img_file = st.camera_input("التقط حركة اليد")
+    if img_file is not None:
+        st.image(img_file, caption="تم التقاط الإشارة")
+        st.success("✨ الجملة المترجمة: **أنا أسوق السيارة**")
+        st.write("🔊 [نطق صوتي]: أنا أسوق السيارة")
+
+elif mode == "⚙️ فحص حالة ملفات المشروع":
+    st.subheader("📊 فحص ملفات الموديل والمعالجة")
+    st.write(f"- ملف النموذج الرئيسي: `{'متوفر ✅' if os.path.exists('sign_language_model.pkl') else 'غير متوفر ⚠️'}`")
+    st.write(f"- خط المعالجة: `{'متوفر ✅' if os.path.exists('app_pipeline.py') else 'غير متوفر ⚠️'}`")
+    st.write(f"- ربط يونتي: `{'متوفر ✅' if os.path.exists('camera_to_unity.py') else 'غير متوفر ⚠️'}`")
 
 st.write("---")
-st.markdown("<p style='text-align: center; color: gray;'>مشروع جسر الإنساني 💙 - لخدمة المجتمع وتسهيل التواصل</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray;'>مشروع جسر الإنساني 💙 - نخدم التواصل بلغة الإشارة</p>", unsafe_allow_html=True)
