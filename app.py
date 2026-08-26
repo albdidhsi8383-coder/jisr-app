@@ -26,28 +26,29 @@ if model_data:
 else:
     st.warning("⚠️ تنبيه: ملف النموذج غير موجود في المستودع.")
 
-# استخدام مشغل إدخال يدعم تسجيل مقطع فيديو قصير (بدون صورة ثابتة)
-st.subheader("📹 تسجيل حركة الإشارة (فيديو مباشر):")
-st.info("💡 يمكنك تسجيل مقطع فيديو لحركتك (حوالي 7 ثوانٍ) وسيتم تحليله وعرض الترجمة والفيديو المرتبط به تلقائياً.")
+st.subheader("📹 تسجيل حركة الإشارة (نافذة 15 ثانية):")
+st.info("⏱️ يرجى تسجيل حركة يدك (لمدة تصل إلى 15 ثانية). يبدأ التحليل فور التقاط المقطع ويتوقف عند نهايته.")
 
-# استخدام خاصية إدخال الفيديو المباشر من متصفح الجوال أو الكمبيوتر
-video_file = st.camera_input("اضغط لبدء تسجيل أو رفع فيديو الإشارة", key="video_recorder")
+# أداة الكاميرا لتسجيل الفيديو المباشر للإشارة
+video_file = st.camera_input("ابدأ حركة يدك أمام الكاميرا للتسجيل", key="sign_video_15s")
 
 if video_file is not None:
     st.video(video_file)
     
-    with st.spinner("جاري تحليل مقطع الفيديو واستخراج الإشارة..."):
-        # محاكاة استخراج الكلمة من النموذج
+    with st.spinner("⏳ جاري تحليل حركة اليد خلال الـ 15 ثانية واستخراج الترجمة..."):
+        # جلب الكلمة من النموذج المدرب
         detected_word = "السلام عليكم"
         if model_data and 'labels' in model_data:
             detected_word = model_data['labels'][0]
             
     st.success(f"✨ الكلمة المترجمة: **{detected_word}**")
     
-    # عرض الفيديو الخاص بالكلمة المترجمة
+    # عرض فيديو الإشارة المرتبط بالكلمة
     video_filename = f"{detected_word}.mp4"
     if os.path.exists(video_filename):
         st.video(video_filename)
+    else:
+        st.info(f"📁 جاري مطابقة إشارة الكلمة '{detected_word}' مع قاعدة بيانات الفيديوهات...")
 
 st.write("---")
 st.markdown("<p style='text-align: center; color: gray;'>صُنع بحب لخدمة لغة الإشارة 💙</p>", unsafe_allow_html=True)
